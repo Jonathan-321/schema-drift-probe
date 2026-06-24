@@ -25,7 +25,8 @@ From this directory:
 python3 schema_drift_probe.py \
   --cases cases.json \
   --fixtures fixtures/sample_responses.json \
-  --out reports/sample-report.md
+  --out reports/sample-report.md \
+  --generated-at "2026-06-24 00:00:00 UTC"
 ```
 
 The script has no third-party dependencies.

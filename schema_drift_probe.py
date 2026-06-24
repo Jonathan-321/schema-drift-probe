@@ -149,10 +149,15 @@ def summarize(results: list[CaseResult]) -> dict[str, dict[str, int]]:
     return summary
 
 
-def render_markdown(results: list[CaseResult], cases: list[dict[str, Any]]) -> str:
+def render_markdown(
+    results: list[CaseResult],
+    cases: list[dict[str, Any]],
+    generated_at: str | None = None,
+) -> str:
     case_lookup = {case["id"]: case for case in cases}
     summary = summarize(results)
-    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    if generated_at is None:
+        generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
     lines = [
         "# Schema Drift Probe Report",
@@ -216,6 +221,10 @@ def main() -> int:
     parser.add_argument("--fixtures", default="fixtures/sample_responses.json", type=Path)
     parser.add_argument("--out", default="reports/sample-report.md", type=Path)
     parser.add_argument(
+        "--generated-at",
+        help="Override the markdown report timestamp, useful for reproducible samples.",
+    )
+    parser.add_argument(
         "--fail-on-violations",
         action="store_true",
         help="Exit with code 1 when any case fails schema validation.",
@@ -230,7 +239,7 @@ def main() -> int:
     if args.out.suffix.lower() == ".json":
         output = render_json(results)
     else:
-        output = render_markdown(results, cases)
+        output = render_markdown(results, cases, args.generated_at)
 
     args.out.write_text(output, encoding="utf-8")
 
