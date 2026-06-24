@@ -1,7 +1,7 @@
 company,contact_route,angle,status,next_action
-Boundary/BAML,contact@boundaryml.com,"Cross-provider schema drift vs parser repair",drafted,"Add repo link, then send or schedule"
-LiteLLM,"ishaan@berri.ai; krrish@berri.ai","Schema behavior behind one OpenAI-compatible API surface",drafted,"Add repo link, then send or schedule"
-Pydantic AI,hello@pydantic.dev,"Provider invalid output vs framework validation/testing",drafted,"Add repo link, then send or schedule"
+Boundary/BAML,contact@boundaryml.com,"Cross-provider schema drift vs parser repair",drafted,"Review draft with repo link, then send or schedule"
+LiteLLM,"ishaan@berri.ai; krrish@berri.ai","Schema behavior behind one OpenAI-compatible API surface",drafted,"Review draft with repo link, then send or schedule"
+Pydantic AI,hello@pydantic.dev,"Provider invalid output vs framework validation/testing",drafted,"Review draft with repo link, then send or schedule"
 LangChain/LangSmith,TBD,"Evals for structured-output behavior across providers",research,"Find best DevRel/product contact and docs hook"
 Vercel AI SDK,TBD,"Structured object generation and provider differences",research,"Find best DevRel/product contact and docs hook"
 Instructor,TBD,"Validation/retry behavior for typed LLM outputs",research,"Find maintainer contact or GitHub issue hook"

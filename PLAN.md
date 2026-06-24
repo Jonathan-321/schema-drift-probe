@@ -29,17 +29,15 @@ Status: done.
 
 ### Phase 2: Make It Linkable
 
-Status: next.
+Status: done.
 
-Best option: GitHub repo.
-
-Suggested repo name:
+Published repo:
 
 ```text
-schema-drift-probe
+https://github.com/Jonathan-321/schema-drift-probe
 ```
 
-Before sending the next batch, publish the folder to GitHub or another shareable page. Engineers are more likely to click a small repo than a long memo.
+Use this link in the next batch. Engineers are more likely to click a small repo than a long memo.
 
 ### Phase 3: First Batch
 
@@ -53,7 +51,7 @@ Targets:
 
 Action:
 
-- Revise drafts to include the repo link after it is published.
+- Revise drafts to include the repo link.
 - Send or schedule them one business morning.
 
 ### Phase 4: Second Batch
