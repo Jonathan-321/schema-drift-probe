@@ -1,0 +1,123 @@
+{
+  "runs": [
+    {
+      "source": "strict_fixture",
+      "description": "Responses that satisfy the intended schema.",
+      "responses": {
+        "ticket_triage": {
+          "category": "bug",
+          "priority": "high",
+          "confidence": 0.91
+        },
+        "invoice_line_items": {
+          "invoice_id": "INV-1007",
+          "items": [
+            {
+              "sku": "SKU-19",
+              "quantity": 2,
+              "unit_price": 12.5
+            }
+          ]
+        },
+        "calendar_event": {
+          "title": "Demo call",
+          "date": "2026-06-25",
+          "start_time": "11:00",
+          "duration_minutes": 30
+        },
+        "tool_arguments": {
+          "tool_name": "lookup_account",
+          "arguments": {
+            "customer_id": "cus_123"
+          }
+        },
+        "safety_label": {
+          "label": "review",
+          "reason": "Ambiguous refund request",
+          "needs_human_review": true
+        }
+      }
+    },
+    {
+      "source": "loose_wrapper_fixture",
+      "description": "Responses that look reasonable but violate strict schema contracts.",
+      "responses": {
+        "ticket_triage": {
+          "category": "technical_bug",
+          "priority": "urgent",
+          "confidence": "0.91",
+          "summary": "Customer cannot log in."
+        },
+        "invoice_line_items": {
+          "invoice_id": "INV-1007",
+          "items": [
+            {
+              "sku": "SKU-19",
+              "quantity": "2",
+              "unit_price": 12.5,
+              "currency": "USD"
+            }
+          ]
+        },
+        "calendar_event": {
+          "title": "Demo call",
+          "relative_date": "tomorrow",
+          "start_time": "11-ish",
+          "duration_minutes": "30 minutes"
+        },
+        "tool_arguments": {
+          "tool_name": "lookup_account",
+          "arguments": {
+            "customer_id": "cus_123",
+            "include_orders": true
+          },
+          "rationale": "The user asked about their account."
+        },
+        "safety_label": {
+          "label": "needs_review",
+          "reason": null,
+          "needs_human_review": "true"
+        }
+      }
+    },
+    {
+      "source": "repair_parser_fixture",
+      "description": "Responses after a hypothetical repair pass. Some errors are fixed, but not all.",
+      "responses": {
+        "ticket_triage": {
+          "category": "bug",
+          "priority": "high",
+          "confidence": 0.91
+        },
+        "invoice_line_items": {
+          "invoice_id": "INV-1007",
+          "items": [
+            {
+              "sku": "SKU-19",
+              "quantity": 2,
+              "unit_price": 12.5
+            }
+          ]
+        },
+        "calendar_event": {
+          "title": "Demo call",
+          "date": "2026-06-25",
+          "start_time": "11:00",
+          "duration_minutes": 30,
+          "timezone": "America/Chicago"
+        },
+        "tool_arguments": {
+          "tool_name": "lookup_account",
+          "arguments": {
+            "customer_id": "cus_123"
+          }
+        },
+        "safety_label": {
+          "label": "review",
+          "reason": null,
+          "needs_human_review": true
+        }
+      }
+    }
+  ]
+}

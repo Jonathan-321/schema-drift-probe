@@ -1,0 +1,134 @@
+[
+  {
+    "id": "ticket_triage",
+    "why": "Checks enum adherence, required fields, number type, and rejection of extra keys.",
+    "schema": {
+      "type": "object",
+      "required": ["category", "priority", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["billing", "bug", "feature_request", "account"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    }
+  },
+  {
+    "id": "invoice_line_items",
+    "why": "Checks nested arrays and object field types.",
+    "schema": {
+      "type": "object",
+      "required": ["invoice_id", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "invoice_id": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["sku", "quantity", "unit_price"],
+            "additionalProperties": false,
+            "properties": {
+              "sku": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "unit_price": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "calendar_event",
+    "why": "Checks strict object shape for event extraction.",
+    "schema": {
+      "type": "object",
+      "required": ["title", "date", "start_time", "duration_minutes"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "start_time": {
+          "type": "string"
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  },
+  {
+    "id": "tool_arguments",
+    "why": "Checks whether tool call arguments stay strict when routed through wrappers.",
+    "schema": {
+      "type": "object",
+      "required": ["tool_name", "arguments"],
+      "additionalProperties": false,
+      "properties": {
+        "tool_name": {
+          "type": "string",
+          "enum": ["refund_order", "lookup_account", "create_ticket"]
+        },
+        "arguments": {
+          "type": "object",
+          "required": ["customer_id"],
+          "additionalProperties": false,
+          "properties": {
+            "customer_id": {
+              "type": "string"
+            },
+            "order_id": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "safety_label",
+    "why": "Checks nullable fields and controlled labels.",
+    "schema": {
+      "type": "object",
+      "required": ["label", "reason", "needs_human_review"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "enum": ["allow", "block", "review"]
+        },
+        "reason": {
+          "type": ["string", "null"]
+        },
+        "needs_human_review": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+]

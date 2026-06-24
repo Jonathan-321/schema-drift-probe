@@ -1,0 +1,42 @@
+{
+  "runs": [
+    {
+      "source": "provider_or_wrapper_name",
+      "description": "Replace this with the provider, wrapper, model, and settings used for the run.",
+      "responses": {
+        "ticket_triage": {
+          "category": "bug",
+          "priority": "high",
+          "confidence": 0.91
+        },
+        "invoice_line_items": {
+          "invoice_id": "INV-1007",
+          "items": [
+            {
+              "sku": "SKU-19",
+              "quantity": 2,
+              "unit_price": 12.5
+            }
+          ]
+        },
+        "calendar_event": {
+          "title": "Demo call",
+          "date": "2026-06-25",
+          "start_time": "11:00",
+          "duration_minutes": 30
+        },
+        "tool_arguments": {
+          "tool_name": "lookup_account",
+          "arguments": {
+            "customer_id": "cus_123"
+          }
+        },
+        "safety_label": {
+          "label": "review",
+          "reason": "Ambiguous refund request",
+          "needs_human_review": true
+        }
+      }
+    }
+  ]
+}
