@@ -1,0 +1,167 @@
+{
+  "scenario": "LiteLLM provider-change regression demo",
+  "baseline_source": "openai_primary",
+  "thresholds": {
+    "max_latency_delta_pct": 35,
+    "max_cost_delta_pct": 25
+  },
+  "runs": [
+    {
+      "source": "openai_primary",
+      "route": "primary: openai/gpt-4.1",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "latency_ms": 820,
+      "cost_usd": 0.0184,
+      "tool_calls": [
+        {
+          "name": "refund_order",
+          "arguments": {
+            "customer_id": "cus_123",
+            "order_id": "ord_456"
+          }
+        }
+      ],
+      "responses": {
+        "ticket_triage": {
+          "category": "billing",
+          "priority": "high",
+          "confidence": 0.92
+        },
+        "invoice_line_items": {
+          "invoice_id": "inv_1001",
+          "items": [
+            {
+              "sku": "starter-plan",
+              "quantity": 1,
+              "unit_price": 29.0
+            }
+          ]
+        },
+        "calendar_event": {
+          "title": "Renewal call",
+          "date": "2026-07-02",
+          "start_time": "11:00",
+          "duration_minutes": 30
+        },
+        "tool_arguments": {
+          "tool_name": "refund_order",
+          "arguments": {
+            "customer_id": "cus_123",
+            "order_id": "ord_456"
+          }
+        },
+        "safety_label": {
+          "label": "review",
+          "reason": "Billing dispute needs account context",
+          "needs_human_review": true
+        }
+      }
+    },
+    {
+      "source": "anthropic_fallback",
+      "route": "fallback: anthropic/claude-sonnet",
+      "provider": "anthropic",
+      "model": "claude-sonnet",
+      "latency_ms": 1250,
+      "cost_usd": 0.0191,
+      "tool_calls": [
+        {
+          "name": "create_ticket",
+          "arguments": {
+            "customer_id": "cus_123",
+            "summary": "Refund requested for order ord_456"
+          }
+        }
+      ],
+      "responses": {
+        "ticket_triage": {
+          "category": "billing",
+          "priority": "urgent",
+          "confidence": 0.89
+        },
+        "invoice_line_items": {
+          "invoice_id": "inv_1001",
+          "items": [
+            {
+              "sku": "starter-plan",
+              "quantity": "1",
+              "unit_price": 29.0
+            }
+          ]
+        },
+        "calendar_event": {
+          "title": "Renewal call",
+          "date": "2026-07-02",
+          "start_time": "11:00",
+          "duration_minutes": 30
+        },
+        "tool_arguments": {
+          "tool_name": "create_ticket",
+          "arguments": {
+            "customer_id": "cus_123",
+            "summary": "Refund requested for order ord_456"
+          }
+        },
+        "safety_label": {
+          "label": "review",
+          "reason": "Billing dispute needs account context",
+          "needs_human_review": true
+        }
+      }
+    },
+    {
+      "source": "cheap_route",
+      "route": "cost-optimized: gemini-flash",
+      "provider": "google",
+      "model": "gemini-flash",
+      "latency_ms": 640,
+      "cost_usd": 0.0042,
+      "tool_calls": [
+        {
+          "name": "refund_order",
+          "arguments": {
+            "customer_id": "cus_123",
+            "order_id": "ord_456"
+          }
+        }
+      ],
+      "responses": {
+        "ticket_triage": {
+          "category": "billing",
+          "priority": "high",
+          "confidence": 0.88,
+          "notes": "Customer likely expects a refund"
+        },
+        "invoice_line_items": {
+          "invoice_id": "inv_1001",
+          "items": [
+            {
+              "sku": "starter-plan",
+              "quantity": 1,
+              "unit_price": 29.0
+            }
+          ]
+        },
+        "calendar_event": {
+          "title": "Renewal call",
+          "date": "2026-07-02",
+          "start_time": "11:00",
+          "duration_minutes": 30
+        },
+        "tool_arguments": {
+          "tool_name": "refund_order",
+          "arguments": {
+            "customer_id": "cus_123",
+            "order_id": "ord_456"
+          }
+        },
+        "safety_label": {
+          "label": "review",
+          "reason": "Billing dispute needs account context",
+          "needs_human_review": true
+        }
+      }
+    }
+  ]
+}

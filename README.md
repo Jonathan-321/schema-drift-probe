@@ -37,6 +37,29 @@ Or use:
 make sample
 ```
 
+## LiteLLM Regression Demo
+
+The outreach version now has a tighter LiteLLM-facing demo:
+
+```bash
+make litellm-demo
+```
+
+This renders `reports/litellm-demo-report.md` from
+`fixtures/litellm_route_runs.json`.
+
+It is still offline and dependency-free. The fixture models a LiteLLM route
+change across a primary provider, a fallback provider, and a cheaper route. The
+report checks four things a team would care about before changing routing rules:
+
+- output-contract failures
+- tool-call signature changes
+- latency deltas
+- cost deltas
+
+That makes the larger problem concrete: a route can succeed at the HTTP layer
+while downstream workflow behavior quietly changes.
+
 ## Read The Report
 
 After running:
