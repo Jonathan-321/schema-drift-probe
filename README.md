@@ -1,102 +1,129 @@
-# Schema Drift Probe
+# AI Workflow Regression Probe
 
-A small proof asset for outreach around structured-output reliability.
+A small, dependency-free demo for catching LLM workflow regressions before a
+team changes model routes, fallbacks, providers, or wrappers.
 
-The goal is simple: test whether an LLM response still satisfies the schema a developer thought they were enforcing after it passes through a provider, wrapper, gateway, or parser.
+The point is not "does the API return 200?" The point is whether the workflow a
+developer depends on still behaves the same:
 
-This is intentionally narrow. It does not claim provider benchmarks yet. It gives us a runnable test shape, sample failures, and a clean artifact to send when asking teams whether this is the right layer to measure.
+- output contracts still pass
+- tool-call signatures stay compatible
+- latency does not jump unexpectedly
+- cost does not change silently
 
-## What It Tests
+The repo started as a schema-drift probe. The stronger version treats schema
+drift as one signal inside a broader model/provider-change regression check.
 
-The current cases cover:
+## 30-Second Demo
 
-- Extra keys that should be rejected under `additionalProperties: false`
-- Missing required fields
-- Enum drift
-- Type drift, including strings where numbers are expected
-- Nested array/object shape drift
-- Tool-call argument shape drift
+Run the LiteLLM-style route-change fixture:
+
+```bash
+make litellm-demo
+```
+
+It renders:
+
+```text
+reports/litellm-demo-report.md
+```
+
+Current fixture result:
+
+| Route | Result |
+| --- | --- |
+| `openai_primary` | 5/5 schema checks, no regression flags |
+| `anthropic_fallback` | 3 new schema failures, latency +52.4%, tool-call signature changed |
+| `cheap_route` | 1 new schema failure, lower cost |
+
+The important read: a fallback route can be correct at the HTTP layer and still
+break the downstream workflow by changing tool arguments, output shape, latency,
+or cost.
+
+## Why This Exists
+
+Teams using LiteLLM, model gateways, eval platforms, and agent frameworks often
+change routes for good reasons: cost, latency, availability, model upgrades, or
+fallback reliability.
+
+Those changes can pass basic smoke tests while still breaking production
+assumptions. Examples:
+
+- a tool call changes from `refund_order(...)` to `create_ticket(...)`
+- a field that was an integer becomes a string
+- an enum gains an unsupported value
+- a "cheaper" route saves money but changes output shape
+- a fallback route works but makes the workflow slower or more expensive
+
+This repo makes that failure mode concrete with small offline fixtures.
 
 ## Run It
 
 From this directory:
 
 ```bash
-python3 schema_drift_probe.py \
-  --cases cases.json \
-  --fixtures fixtures/sample_responses.json \
-  --out reports/sample-report.md \
-  --generated-at "2026-06-24 00:00:00 UTC"
+make litellm-demo
 ```
 
-The script has no third-party dependencies.
-
-Or use:
+For the original schema-only sample:
 
 ```bash
 make sample
 ```
 
-## LiteLLM Regression Demo
+No third-party packages are required.
 
-The outreach version now has a tighter LiteLLM-facing demo:
+## What Gets Checked
 
-```bash
-make litellm-demo
-```
+The schema probe covers:
 
-This renders `reports/litellm-demo-report.md` from
-`fixtures/litellm_route_runs.json`.
+- extra keys rejected under `additionalProperties: false`
+- missing required fields
+- enum drift
+- type drift
+- nested array/object drift
+- tool-call argument drift
 
-It is still offline and dependency-free. The fixture models a LiteLLM route
-change across a primary provider, a fallback provider, and a cheaper route. The
-report checks four things a team would care about before changing routing rules:
+The LiteLLM-style demo adds route-level checks:
 
-- output-contract failures
+- schema pass/fail counts per route
+- latency deltas against the baseline route
+- cost deltas against the baseline route
 - tool-call signature changes
-- latency deltas
-- cost deltas
 
-That makes the larger problem concrete: a route can succeed at the HTTP layer
-while downstream workflow behavior quietly changes.
+## What This Is Not
 
-## Read The Report
+This is not a live provider benchmark.
 
-After running:
+The fixture names are intentionally offline examples, not claims about real
+OpenAI, Anthropic, Google, or other provider behavior. The useful artifact is
+the shape of the check: what a team could log and compare before moving traffic
+to a new model route.
 
-```bash
-open reports/sample-report.md
-```
+## Files
 
-The fixture names are not real providers. They represent common layers:
+| File | Purpose |
+| --- | --- |
+| `litellm_regression_demo.py` | Renders the provider-change regression report |
+| `schema_drift_probe.py` | Validates fixture outputs against JSON schemas |
+| `fixtures/litellm_route_runs.json` | Offline route-change fixture |
+| `reports/litellm-demo-report.md` | Human-readable demo output |
+| `cases.json` | Contract cases used by both demos |
 
-- `strict_fixture`: schema-valid responses
-- `loose_wrapper_fixture`: responses that look usable but violate the schema
-- `repair_parser_fixture`: responses after a hypothetical repair layer
+## Next Improvements
 
-## Why This Exists
+The next useful version would replace the offline fixture with real logs from a
+wrapper or gateway:
 
-Most structured-output examples stop at "the response parsed." In practice, teams need to know whether output still satisfies the exact schema contract they planned to rely on.
+- LiteLLM route logs
+- LangSmith / LangGraph traces
+- Pydantic AI structured outputs
+- BAML structured-output runs
+- Vercel AI SDK tool calls
 
-The outreach question this supports:
+Use `fixtures/real_run_template.json` as the starting shape for real logs.
 
-> Do teams already test schema behavior per provider/wrapper/model before production traffic, or is this still mostly handled after failures appear?
-
-## Next Step
-
-Replace the sample fixtures with real response logs from:
-
-- LiteLLM
-- Pydantic AI
-- BAML
-- LangChain/LangSmith
-- Vercel AI SDK
-
-Then compare results by provider, wrapper, and model.
-
-Use `fixtures/real_run_template.json` as the shape for real logs.
-
-For CI or automated checks, use:
+For CI-style usage:
 
 ```bash
 python3 schema_drift_probe.py \
