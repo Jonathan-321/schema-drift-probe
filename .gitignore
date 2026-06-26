@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .DS_Store
 reports/*.json
+!reports/litellm-demo-report.json

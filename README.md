@@ -26,6 +26,7 @@ It renders:
 
 ```text
 reports/litellm-demo-report.md
+reports/litellm-demo-report.json
 ```
 
 Current fixture result:
@@ -108,6 +109,7 @@ to a new model route.
 | `schema_drift_probe.py` | Validates fixture outputs against JSON schemas |
 | `fixtures/litellm_route_runs.json` | Offline route-change fixture |
 | `reports/litellm-demo-report.md` | Human-readable demo output |
+| `reports/litellm-demo-report.json` | Machine-readable route-regression output |
 | `cases.json` | Contract cases used by both demos |
 
 ## Next Improvements
@@ -124,6 +126,19 @@ wrapper or gateway:
 Use `fixtures/real_run_template.json` as the starting shape for real logs.
 
 For CI-style usage:
+
+```bash
+python3 litellm_regression_demo.py \
+  --cases cases.json \
+  --fixtures fixtures/litellm_route_runs.json \
+  --out reports/litellm-demo-report.md \
+  --json-out reports/litellm-demo-report.json \
+  --fail-on-regressions
+```
+
+The included LiteLLM fixture intentionally exits non-zero with
+`--fail-on-regressions` because it contains schema, latency, and tool-call
+regressions. For schema-only checks:
 
 ```bash
 python3 schema_drift_probe.py \

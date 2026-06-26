@@ -199,6 +199,49 @@ def render_markdown(
     return "\n".join(lines).rstrip() + "\n"
 
 
+def render_json(
+    fixture: dict[str, Any],
+    route_results: list[RouteResult],
+    probe_results: list[CaseResult],
+    generated_at: str,
+) -> str:
+    payload = {
+        "generated_at": generated_at,
+        "scenario": fixture.get("scenario", "LiteLLM regression demo"),
+        "baseline_source": fixture["baseline_source"],
+        "thresholds": fixture.get("thresholds", {}),
+        "has_regressions": any(result.regressions for result in route_results),
+        "routes": [
+            {
+                "source": result.source,
+                "route": result.route,
+                "provider": result.provider,
+                "model": result.model,
+                "latency_ms": result.latency_ms,
+                "cost_usd": result.cost_usd,
+                "schema": {
+                    "passed": result.schema_passed,
+                    "failed": result.schema_failed,
+                    "total": result.schema_total,
+                },
+                "tool_signature": result.tool_signature,
+                "regressions": result.regressions,
+            }
+            for result in route_results
+        ],
+        "output_contract_failures": [
+            {
+                "source": result.source,
+                "case_id": result.case_id,
+                "errors": result.errors,
+            }
+            for result in probe_results
+            if not result.passed
+        ],
+    }
+    return json.dumps(payload, indent=2) + "\n"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Render a LiteLLM regression demo.")
     parser.add_argument("--cases", default="cases.json", type=Path)
@@ -211,6 +254,11 @@ def main() -> int:
         help="Override report timestamp, useful for reproducible samples.",
     )
     parser.add_argument(
+        "--json-out",
+        type=Path,
+        help="Optional machine-readable JSON output path for CI or dashboards.",
+    )
+    parser.add_argument(
         "--fail-on-regressions",
         action="store_true",
         help="Exit with code 1 when any non-baseline route has regression flags.",
@@ -221,10 +269,17 @@ def main() -> int:
     fixture = load_json(args.fixtures)
     probe_results = run_probe(cases, fixture)
     route_results = build_route_results(fixture, probe_results)
+    generated_at = args.generated_at
+    if generated_at is None:
+        generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    report = render_markdown(fixture, route_results, probe_results, args.generated_at)
+    report = render_markdown(fixture, route_results, probe_results, generated_at)
     args.out.write_text(report, encoding="utf-8")
+    if args.json_out:
+        args.json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_report = render_json(fixture, route_results, probe_results, generated_at)
+        args.json_out.write_text(json_report, encoding="utf-8")
 
     for result in route_results:
         flags = ", ".join(result.regressions) if result.regressions else "none"
@@ -233,6 +288,8 @@ def main() -> int:
             f"schema checks passed; regression flags: {flags}"
         )
     print(f"wrote {args.out}")
+    if args.json_out:
+        print(f"wrote {args.json_out}")
 
     if args.fail_on_regressions and any(result.regressions for result in route_results):
         return 1

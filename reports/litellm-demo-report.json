@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-06-24 00:00:00 UTC",
+  "scenario": "LiteLLM provider-change regression demo",
+  "baseline_source": "openai_primary",
+  "thresholds": {
+    "max_latency_delta_pct": 35,
+    "max_cost_delta_pct": 25
+  },
+  "has_regressions": true,
+  "routes": [
+    {
+      "source": "openai_primary",
+      "route": "primary: openai/gpt-4.1",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "latency_ms": 820,
+      "cost_usd": 0.0184,
+      "schema": {
+        "passed": 5,
+        "failed": 0,
+        "total": 5
+      },
+      "tool_signature": "refund_order(customer_id:string, order_id:string)",
+      "regressions": []
+    },
+    {
+      "source": "anthropic_fallback",
+      "route": "fallback: anthropic/claude-sonnet",
+      "provider": "anthropic",
+      "model": "claude-sonnet",
+      "latency_ms": 1250,
+      "cost_usd": 0.0191,
+      "schema": {
+        "passed": 2,
+        "failed": 3,
+        "total": 5
+      },
+      "tool_signature": "create_ticket(customer_id:string, summary:string)",
+      "regressions": [
+        "3 new schema failure(s)",
+        "latency +52.4%",
+        "tool-call signature changed"
+      ]
+    },
+    {
+      "source": "cheap_route",
+      "route": "cost-optimized: gemini-flash",
+      "provider": "google",
+      "model": "gemini-flash",
+      "latency_ms": 640,
+      "cost_usd": 0.0042,
+      "schema": {
+        "passed": 4,
+        "failed": 1,
+        "total": 5
+      },
+      "tool_signature": "refund_order(customer_id:string, order_id:string)",
+      "regressions": [
+        "1 new schema failure(s)"
+      ]
+    }
+  ],
+  "output_contract_failures": [
+    {
+      "source": "anthropic_fallback",
+      "case_id": "ticket_triage",
+      "errors": [
+        "$.priority: value 'urgent' not in enum ['low', 'medium', 'high']"
+      ]
+    },
+    {
+      "source": "anthropic_fallback",
+      "case_id": "invoice_line_items",
+      "errors": [
+        "$.items[0].quantity: expected integer, got string"
+      ]
+    },
+    {
+      "source": "anthropic_fallback",
+      "case_id": "tool_arguments",
+      "errors": [
+        "$.arguments: unexpected key 'summary'"
+      ]
+    },
+    {
+      "source": "cheap_route",
+      "case_id": "ticket_triage",
+      "errors": [
+        "$: unexpected key 'notes'"
+      ]
+    }
+  ]
+}
